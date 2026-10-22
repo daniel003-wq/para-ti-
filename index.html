@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para Ti</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Georgia', serif;
+    }
+
+    /* Estilo para el botón de play */
+    #start-btn {
+      position: absolute;
+      z-index: 10;
+      padding: 14px 28px;
+      font-size: 18px;
+      font-family: 'Georgia', serif;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 2px solid #ff4d79;
+      border-radius: 30px;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(255, 77, 121, 0.4);
+    }
+
+    #start-btn:hover {
+      background: #ff4d79;
+      color: #fff;
+      box-shadow: 0 0 25px rgba(255, 77, 121, 0.8);
+      transform: scale(1.05);
+    }
+
+    /* Estilos para los paneles de imágenes laterales */
+    .side-images {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .left-side {
+      left: 10px;
+    }
+
+    .right-side {
+      right: 10px;
+    }
+
+    .side-images img {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 15px;
+      border: 2px solid rgba(255, 77, 121, 0.4);
+      box-shadow: 0 0 15px rgba(255, 77, 121, 0.2);
+      pointer-events: auto;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .side-images img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(255, 77, 121, 0.6);
+    }
+
+    /* Ajuste responsivo para móviles: reubicamos y compactamos las imágenes para que sí se muestren */
+    @media (max-width: 900px) {
+      .side-images {
+        position: absolute;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+      .left-side {
+        top: 10px;
+        left: 0;
+        bottom: auto;
+      }
+      .right-side {
+        bottom: 10px;
+        right: 0;
+        top: auto;
+      }
+      .side-images img {
+        width: 75px;
+        height: 75px;
+        border-radius: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Botón para iniciar la música y la animación -->
+  <button id="start-btn" onclick="startExperience()">✨ Toca aquí para empezar ✨</button>
+
+  <!-- Contenedor Izquierdo de Imágenes -->
+  <div class="side-images left-side">
+    <img src="luchito.jpg" alt="Recuerdo 1">
+    <img src="Rapunzel.jpg" alt="Recuerdo 2">
+  </div>
+
+  <!-- Contenedor Derecho de Imágenes -->
+  <div class="side-images right-side">
+    <img src="Cuadro.jpg" alt="Recuerdo 3">
+    <img src="princesa.jpg" alt="Recuerdo 4">
+  </div>
+
+  <!-- Elemento de audio -->
+  <audio id="bg-music" preload="auto">
+    <source src="la-espera.mp3" type="audio/mp3">
+    Tu navegador no soporta el elemento de audio.
+  </audio>
+
+  <script>
+    let musicStarted = false;
+
+    function startExperience() {
+      let music = document.getElementById("bg-music");
+      let btn = document.getElementById("start-btn");
+      
+      music.play().catch(error => {
+        console.log("Error al reproducir audio:", error);
+      });
+
+      musicStarted = true;
+
+      // Desvanecer y ocultar el botón
+      btn.style.opacity = '0';
+      setTimeout(() => {
+        btn.style.display = 'none';
+      }, 500);
+    }
+    
+    let N = 500;
+    let stars = [];
+    let steps = 60;
+    let frameCounter = 0;
+    let poemLines = [
+      "Podrá nublarse el sol eternamente;",
+      "podrá secarse en un instante el mar;",
+      "podrá romperse el eje de la tierra",
+      "como un débil cristal.",
+      "",
+      "¡Todo sucederá! Podrá la muerte",
+      "cubrirnos con su sombra fúnebre;",
+      "pero jamás en mí podrá apagarse",
+      "la llama de tu amor."
+    ];
+    let lineIndex = 0;
+    let poemTimer = 0;
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      
+      for (let i = 0; i < N; i++) {
+        let a = TWO_PI * (i / N);
+        let baseX = 16 * Math.pow(Math.sin(a), 3) * 13;
+        let baseY = -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) * 13;
+
+        let tx = baseX + random(-12, 12);
+        let ty = baseY + random(-12, 12);
+
+        let sx = random(-width / 2, width / 2);
+        let sy = random(-height / 2, height / 2);
+        let size = random(2.5, 5.0);
+
+        stars.push({ sx, sy, tx, ty, size });
+      }
+    }
+
+    function draw() {
+      background(0);
+      translate(width / 2, height / 2);
+
+      let progress = min(frameCounter / steps, 1);
+      let eased = Math.sin(progress * HALF_PI);
+
+      stroke("#0000FF");
+      strokeWeight(1.2);
+      noFill();
+
+      for (let star of stars) {
+        let cx = star.sx + (star.tx - star.sx) * eased;
+        let cy = star.sy + (star.ty - star.sy) * eased;
+        drawStar(cx, cy, star.size);
+      }
+
+      if (frameCounter < steps) {
+        frameCounter += 0.8;
+      } else {
+        if (millis() - poemTimer > 1200 && lineIndex < poemLines.length) {
+          lineIndex++;
+          poemTimer = millis();
+        }
+      }
+
+      textAlign(CENTER, CENTER);
+      textFont('Georgia');
+      // Ajustamos el tamaño del texto para que no se desborde en pantallas móviles
+      textSize(windowWidth < 600 ? 16 : 20);
+      noStroke();
+      fill(255, 200);
+
+      let startY = -90;
+      let lineHeight = windowWidth < 600 ? 26 : 32;
+
+      for (let i = 0; i < lineIndex; i++) {
+        text(poemLines[i], 0, startY + (i * lineHeight));
+      }
+    }
+
+    function drawStar(x, y, radius) {
+      point(x, y);
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+  </script>
+</body>
+</html>
